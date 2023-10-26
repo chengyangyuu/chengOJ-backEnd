@@ -113,6 +113,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         //根据标题查题
         queryWrapper.like(StringUtils.isNotBlank(language), "language", language);
         queryWrapper.eq(ObjectUtils.isNotEmpty(questionId), "questionId", questionId);
+
         //存在状态在查  加不加都无所谓
         queryWrapper.eq(QuestionSubmitStatusEnum.getEnumByValue(status)!=null,"status",status);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
@@ -129,7 +130,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         //VO 脱敏 仅本人和管理员能看见 (提交 userId和登录用户 Id的不同)提交代码的答案,提交代码
         //查的不是自己信息 或者不是管理员 不让查
         Long userId = loginUser.getId();
-        if (userId !=  questionSubmitVO.getUserId()||userService.isAdmin(loginUser)){
+        if (userId !=  questionSubmit.getUserId()&&userService.isAdmin(loginUser)){
             questionSubmitVO.setCode(null);
         }
         return questionSubmitVO;
