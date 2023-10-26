@@ -6,6 +6,8 @@ import com.cheng.chengoj.model.dto.question.QuestionQueryRequest;
 import com.cheng.chengoj.model.entity.Question;
 import com.cheng.chengoj.model.entity.Question;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cheng.chengoj.model.entity.QuestionSubmit;
+import com.cheng.chengoj.model.vo.QuestionSubmitVO;
 import com.cheng.chengoj.model.vo.QuestionVO;
 
 import javax.servlet.http.HttpServletRequest;

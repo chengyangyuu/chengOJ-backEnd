@@ -1,12 +1,19 @@
 package com.cheng.chengoj.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cheng.chengoj.annotation.AuthCheck;
 import com.cheng.chengoj.common.BaseResponse;
 import com.cheng.chengoj.common.ErrorCode;
 import com.cheng.chengoj.common.ResultUtils;
+import com.cheng.chengoj.constant.UserConstant;
 import com.cheng.chengoj.exception.BusinessException;
-import com.cheng.chengoj.model.dto.postthumb.QuestionSubmitAddRequest;
+import com.cheng.chengoj.model.dto.question.QuestionQueryRequest;
 import com.cheng.chengoj.model.dto.questionSubmit.QuestionSubmitAddRequest;
+import com.cheng.chengoj.model.dto.questionSubmit.QuestionSubmitQueryRequest;
+import com.cheng.chengoj.model.dto.user.UserQueryRequest;
+import com.cheng.chengoj.model.entity.QuestionSubmit;
 import com.cheng.chengoj.model.entity.User;
+import com.cheng.chengoj.model.vo.QuestionSubmitVO;
 import com.cheng.chengoj.service.QuestionSubmitService;
 import com.cheng.chengoj.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -50,5 +57,26 @@ public class QuestionSubmitController {
         long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(questionSubmitId);
     }
+    /**
+     * 分页获取题目提交列表（管理员外的人 只能看到非答案 提交代码等公开信息）
+     *
+     * @param questionSubmitQueryRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/list/page")
+    public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest,
+                                                                         HttpServletRequest request) {
+        //查询到原始分页数据
+        long current = questionSubmitQueryRequest.getCurrent();
+        long size = questionSubmitQueryRequest.getPageSize();
+        Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, size),
+                questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
+        final User loginUser = userService.getLoginUser(request);
+        //返回脱敏信息
+        return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage,loginUser));
+
+    }
+
 
 }

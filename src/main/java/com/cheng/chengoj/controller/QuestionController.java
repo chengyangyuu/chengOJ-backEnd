@@ -1,5 +1,6 @@
 package com.cheng.chengoj.controller;
 
+import co.elastic.clients.elasticsearch.sql.QueryRequest;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cheng.chengoj.annotation.AuthCheck;
 import com.cheng.chengoj.common.BaseResponse;
@@ -9,12 +10,12 @@ import com.cheng.chengoj.common.ResultUtils;
 import com.cheng.chengoj.constant.UserConstant;
 import com.cheng.chengoj.exception.BusinessException;
 import com.cheng.chengoj.exception.ThrowUtils;
-import com.cheng.chengoj.model.dto.question.QuestionAddRequest;
-import com.cheng.chengoj.model.dto.question.QuestionEditRequest;
-import com.cheng.chengoj.model.dto.question.QuestionQueryRequest;
-import com.cheng.chengoj.model.dto.question.QuestionUpdateRequest;
+import com.cheng.chengoj.model.dto.question.*;
+import com.cheng.chengoj.model.dto.user.UserQueryRequest;
+import com.cheng.chengoj.model.entity.Post;
 import com.cheng.chengoj.model.entity.Question;
 import com.cheng.chengoj.model.entity.User;
+import com.cheng.chengoj.model.vo.PostVO;
 import com.cheng.chengoj.model.vo.QuestionVO;
 import com.cheng.chengoj.service.QuestionService;
 import com.cheng.chengoj.service.UserService;
@@ -63,6 +64,14 @@ public class QuestionController {
         List<String> tags = questionAddRequest.getTags();
         if (tags != null) {
             question.setTags(GSON.toJson(tags));
+        }
+        List<JudgeCase> judgeCase = questionAddRequest.getJudgeCase();
+        if (judgeCase!=null){
+            question.setJudgeCase(GSON.toJson(judgeCase));
+        }
+        JudgeConfig judgeConfig = questionAddRequest.getJudgeConfig();
+        if (judgeConfig!=null){
+            question.setJudgeCase(GSON.toJson(judgeConfig));
         }
         questionService.validQuestion(question, true);
         User loginUser = userService.getLoginUser(request);
@@ -118,6 +127,14 @@ public class QuestionController {
         if (tags != null) {
             question.setTags(GSON.toJson(tags));
         }
+        List<JudgeCase> judgeCase = questionUpdateRequest.getJudgeCase();
+        if (judgeCase!=null){
+            question.setJudgeCase(GSON.toJson(judgeCase));
+        }
+        JudgeConfig judgeConfig = questionUpdateRequest.getJudgeConfig();
+        if (judgeConfig!=null){
+            question.setJudgeCase(GSON.toJson(judgeConfig));
+        }
         // 参数校验
         questionService.validQuestion(question, false);
         long id = questionUpdateRequest.getId();
@@ -163,6 +180,48 @@ public class QuestionController {
         Page<Question> questionPage = questionService.page(new Page<>(current, size),
                 questionService.getQueryWrapper(questionQueryRequest));
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
+    }
+
+    /**
+     * 分页获取当前用户创建的资源列表
+     *
+     * @param questionQueryRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/my/list/page/vo")
+    public BaseResponse<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
+                                                         HttpServletRequest request) {
+        if (questionQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        questionQueryRequest.setUserId(loginUser.getId());
+        long current = questionQueryRequest.getCurrent();
+        long size = questionQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        Page<Question> questionPage = questionService.page(new Page<>(current, size),
+                questionService.getQueryWrapper(questionQueryRequest));
+        return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
+    }
+
+    /**
+     * 分页获取用户列表（仅管理员）
+     *
+     * @param questionQueryRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/list/page")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<Question>> listUserByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
+                                                   HttpServletRequest request) {
+        long current = questionQueryRequest.getCurrent();
+        long size = questionQueryRequest.getPageSize();
+        Page<Question> questionPage = questionService.page(new Page<>(current, size),
+                 questionService.getQueryWrapper(questionQueryRequest));
+        return ResultUtils.success(questionPage);
     }
 
 
