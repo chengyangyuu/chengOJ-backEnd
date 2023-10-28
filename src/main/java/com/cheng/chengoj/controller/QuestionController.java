@@ -20,6 +20,7 @@ import com.cheng.chengoj.model.vo.QuestionVO;
 import com.cheng.chengoj.service.QuestionService;
 import com.cheng.chengoj.service.UserService;
 import com.google.gson.Gson;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -146,7 +147,28 @@ public class QuestionController {
     }
 
     /**
-     * 根据 id 获取
+     * 根据 id 获取 全量(原始)
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/get")
+    public BaseResponse<Question> getQuestionById(long id, HttpServletRequest request) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Question question = questionService.getById(id);
+        if (question == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        if (!question.getUserId().equals(loginUser.getId()) &&!userService.isAdmin(loginUser)){
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        return ResultUtils.success(question);
+    }
+    /**
+     * 根据 id 获取VO
      *
      * @param id
      * @return
@@ -182,6 +204,7 @@ public class QuestionController {
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
     }
 
+
     /**
      * 分页获取当前用户创建的资源列表
      *
@@ -215,7 +238,7 @@ public class QuestionController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<Question>> listUserByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
+    public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
                                                    HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
