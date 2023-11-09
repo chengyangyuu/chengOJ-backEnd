@@ -1,7 +1,4 @@
 package com.cheng.chengoj.judge;
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,27 +10,23 @@ import com.cheng.chengoj.judge.codesandbox.CodeSandboxFactory;
 import com.cheng.chengoj.judge.codesandbox.CodeSandboxProxy;
 import com.cheng.chengoj.judge.codesandbox.model.ExecuteCodeRequest;
 import com.cheng.chengoj.judge.codesandbox.model.ExecuteCodeResponse;
-import com.cheng.chengoj.judge.strategy.DefaultJudgeStrategy;
 import com.cheng.chengoj.judge.strategy.JudgeContext;
-import com.cheng.chengoj.judge.strategy.JudgeStrategy;
 import com.cheng.chengoj.model.dto.question.JudgeCase;
-import com.cheng.chengoj.model.dto.question.JudgeConfig;
-import com.cheng.chengoj.model.dto.questionSubmit.JudgeInfo;
+import com.cheng.chengoj.judge.codesandbox.model.JudgeInfo;
 import com.cheng.chengoj.model.entity.Question;
 import com.cheng.chengoj.model.entity.QuestionSubmit;
-import com.cheng.chengoj.model.enums.JudgeInfoMessageEnum;
 import com.cheng.chengoj.model.enums.QuestionSubmitLanguageEnum;
 import com.cheng.chengoj.model.enums.QuestionSubmitStatusEnum;
-import com.cheng.chengoj.model.vo.QuestionSubmitVO;
 import com.cheng.chengoj.service.QuestionService;
 import com.cheng.chengoj.service.QuestionSubmitService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.swing.*;
 
 @Service
+@Slf4j
 public class JudgeServiceImpl implements JudgeService {
 
     @Resource
@@ -77,19 +70,21 @@ public class JudgeServiceImpl implements JudgeService {
         //调用代码沙箱 获取执行结果
         CodeSandBox codeSandBox = CodeSandboxFactory.newInstance(type);
         codeSandBox = new CodeSandboxProxy(codeSandBox);
-        //先写一个mock值 致力于跑通程序
+        String language = questionSubmit.getLanguage();
+        String code = questionSubmit.getCode();
+        //拿到要比对的数据 122 122 122
         String judgeCaseStr = question.getJudgeCase();
         List<JudgeCase> judgeCaseList = JSONUtil.toList(judgeCaseStr, JudgeCase.class);
         //获取judgeCaseList里的Input列表
         List<String> inputList = judgeCaseList.stream().map(JudgeCase::getInput).collect(Collectors.toList());
-        String language = QuestionSubmitLanguageEnum.JAVA.getValue();
-        String code = questionSubmit.getCode();
+
         ExecuteCodeRequest executeCodeRequest = ExecuteCodeRequest.builder()
                 .code(code)
                 .inputList(inputList)
                 .language(language)
                 .build();
         ExecuteCodeResponse executeCodeResponse = codeSandBox.executeCode(executeCodeRequest);
+
         //更改状态之前 判断执行的是否正确
         //1.数量：先判断输出数量是否和预期数量相同(校验组数 几组数据)
         List<String> outputList = executeCodeResponse.getOutputList();

@@ -3,7 +3,7 @@ package com.cheng.chengoj.judge.strategy;
 import cn.hutool.json.JSONUtil;
 import com.cheng.chengoj.model.dto.question.JudgeCase;
 import com.cheng.chengoj.model.dto.question.JudgeConfig;
-import com.cheng.chengoj.model.dto.questionSubmit.JudgeInfo;
+import com.cheng.chengoj.judge.codesandbox.model.JudgeInfo;
 import com.cheng.chengoj.model.entity.Question;
 import com.cheng.chengoj.model.enums.JudgeInfoMessageEnum;
 
@@ -21,6 +21,7 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
      */
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
+        //沙箱输入的 成功...的数值
         JudgeInfo judgeInfo = judgeContext.getJudgeInfo();
         Long memory = judgeInfo.getMemory();
         Long time = judgeInfo.getTime();

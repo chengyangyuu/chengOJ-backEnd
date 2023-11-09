@@ -1,7 +1,7 @@
 package com.cheng.chengoj.model.vo;
 
 import cn.hutool.json.JSONUtil;
-import com.cheng.chengoj.model.dto.questionSubmit.JudgeInfo;
+import com.cheng.chengoj.judge.codesandbox.model.JudgeInfo;
 import com.cheng.chengoj.model.entity.QuestionSubmit;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;

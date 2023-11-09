@@ -1,7 +1,6 @@
 package com.cheng.chengoj.judge;
 
 import com.cheng.chengoj.model.entity.QuestionSubmit;
-import com.cheng.chengoj.model.vo.QuestionSubmitVO;
 
 
 public interface JudgeService {

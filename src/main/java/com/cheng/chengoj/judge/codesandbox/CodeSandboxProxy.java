@@ -6,13 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@AllArgsConstructor
 public class CodeSandboxProxy implements CodeSandBox {
-    private final CodeSandBox codeSandBox;
 
-    //构造函数
-    public CodeSandboxProxy(CodeSandBox codeSandBox) {
-        this.codeSandBox=codeSandBox;
-    }
+    private final CodeSandBox codeSandBox;
+    //带参构造注解
 
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {

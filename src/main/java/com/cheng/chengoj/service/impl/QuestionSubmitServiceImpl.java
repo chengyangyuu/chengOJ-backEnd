@@ -1,4 +1,5 @@
 package com.cheng.chengoj.service.impl;
+
 import java.util.Date;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -47,7 +48,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper, QuestionSubmit>
-    implements QuestionSubmitService{
+        implements QuestionSubmitService {
 
     @Resource
     private QuestionService questionService;
@@ -58,6 +59,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     @Resource
     @Lazy
     private JudgeService judgeService;
+
     /**
      * 提交题目
      *
@@ -70,8 +72,8 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         //判断编程语言是否合法
         String language = questionSubmitAddRequest.getLanguage();
         QuestionSubmitLanguageEnum enumByValue = QuestionSubmitLanguageEnum.getEnumByValue(language);
-        if (enumByValue==null){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"编程语言错误");
+        if (enumByValue == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "编程语言错误");
         }
         //题目id
         Long questionId = questionSubmitAddRequest.getQuestionId();
@@ -90,20 +92,23 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         questionSubmit.setStatus(QuestionSubmitStatusEnum.WAITING.getValue());
         questionSubmit.setJudgeInfo("{}");
         boolean save = this.save(questionSubmit);
-        if (!save){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"数据插入失败");
+        if (!save) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }
         Long questionSubmitId = questionSubmit.getId();
         //执行判题服务  这里最好用异步 因为判题服务很慢的
-        CompletableFuture.runAsync(()->{
+        CompletableFuture.runAsync(() -> {
             judgeService.doJudge(questionSubmitId);
         });
-        return questionSubmit.getId();
+
+        return questionSubmitId;
     }
+
     /**
      * 获取查询包装类  (用户可能根据 哪些字段查询 )
      * 根据 前端传来 的参数 来 查对应的
      * 根据用户传入的请求参数 拼接一个mybatisPlus的QueryWrapper类
+     *
      * @param questionSubmitQueryRequest
      * @return
      */
@@ -126,7 +131,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         queryWrapper.eq(ObjectUtils.isNotEmpty(questionId), "questionId", questionId);
 
         //存在状态在查  加不加都无所谓
-        queryWrapper.eq(QuestionSubmitStatusEnum.getEnumByValue(status)!=null,"status",status);
+        queryWrapper.eq(QuestionSubmitStatusEnum.getEnumByValue(status) != null, "status", status);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
         queryWrapper.eq("isDelete", false);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
@@ -141,7 +146,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         //VO 脱敏 仅本人和管理员能看见 (提交 userId和登录用户 Id的不同)提交代码的答案,提交代码
         //查的不是自己信息 或者不是管理员 不让查
         Long userId = loginUser.getId();
-        if (userId !=  questionSubmit.getUserId()&&userService.isAdmin(loginUser)){
+        if (userId != questionSubmit.getUserId() && userService.isAdmin(loginUser)) {
             questionSubmitVO.setCode(null);
         }
         return questionSubmitVO;

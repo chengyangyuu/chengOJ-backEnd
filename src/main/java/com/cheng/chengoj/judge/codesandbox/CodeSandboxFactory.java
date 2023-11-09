@@ -9,8 +9,8 @@ import com.cheng.chengoj.judge.codesandbox.impl.ThirdPartyCodeSandBox;
  */
 public class CodeSandboxFactory {
 
-    public static CodeSandBox newInstance(String type){
-        switch (type){
+    public static CodeSandBox newInstance(String type) {
+        switch (type) {
             case "example":
                 return new ExampleCodeSandBox();
             case "remote":
