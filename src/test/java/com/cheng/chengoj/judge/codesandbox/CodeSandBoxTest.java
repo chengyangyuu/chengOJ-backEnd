@@ -38,7 +38,6 @@ class CodeSandBoxTest {
                 .build();
         ExecuteCodeResponse executeCodeResponse = codeSandBox.executeCode(executeCodeRequest);
         Assertions.assertNotNull(executeCodeResponse);
-        System.out.println(executeCodeResponse);
     }
 }
 

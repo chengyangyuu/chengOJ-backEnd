@@ -41,6 +41,11 @@ public class JudgeServiceImpl implements JudgeService {
     @Value("${codeSandbox.type:example}")
     private String type;
 
+    /**
+     * 执行判题
+     * @param questionSubmitId
+     * @return
+     */
     @Override
     public QuestionSubmit doJudge(long questionSubmitId) {
 //        1提交id->获取题目提交信息(代码语言)

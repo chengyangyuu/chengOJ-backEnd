@@ -16,17 +16,18 @@ import javax.servlet.http.HttpUtils;
  * 远程代码沙箱(实际调用接口的沙箱)
  */
 public class RemoteCodeSandBox implements CodeSandBox {
-//
-//    // 定义鉴权请求头和密钥
-//    private static final String AUTH_REQUEST_HEADER = "auth";
-//
-//    private static final String AUTH_REQUEST_SECRET = "secretKey";
+
+
+    //定义鉴权请求头和密钥
+    private static final String AUTH_REQUEST_HEADER = "auth";
+    private static final String AUTH_REQUEST_SECRET = "secretKet";
 
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
         String url = "http://localhost:8090/executeCode";
         String jsonStr = JSONUtil.toJsonStr(executeCodeRequest);
         String responseStr = HttpUtil.createPost(url)
+                .header(AUTH_REQUEST_HEADER,AUTH_REQUEST_HEADER)
                 .body(jsonStr)
                 .execute()
                 .body();
